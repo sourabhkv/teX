@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
-from PyQt5.QtGui import QFont, QTextCursor, QKeySequence, QTextCharFormat, QIcon, QPixmap
+from PyQt5.QtGui import QFont, QTextCharFormat, QIcon, QPixmap
 import sys
 import os
 from datetime import datetime
@@ -13,6 +13,7 @@ class MyGUI(QMainWindow):
         self.tab_count = -1
         self.tab_data = []
         self.tab_textedit_data = []
+        #self.save_status = []                        track saving status of files
         uic.loadUi('text_editor.ui', self)
         icon = QIcon('notepad.ico')
         self.setWindowIcon(icon)
@@ -21,9 +22,10 @@ class MyGUI(QMainWindow):
 
         if len(args) > 1:
             for i in args[1:]:
-                self.add_new_tab(tabname=str(i))  # Convert i to string
+                  # Convert i to string
                 with open(i,"r") as file:
-                    self.tab_textedit_data[self.tabWidget.currentIndex()].setPlainText(file.read())
+                    self.add_new_tab(tabname=str(i),text = file.read())
+                    #self.tab_textedit_data[self.tabWidget.currentIndex()].setPlainText(file.read())
         else:
             self.add_new_tab(tabname="Untitled")
         
@@ -67,23 +69,31 @@ class MyGUI(QMainWindow):
         
         self.show()
 
-    def add_new_tab(self, tabname):
+    def add_new_tab(self, tabname, text = ''):
         self.tab_data.append(QWidget())
         self.tabWidget.addTab(self.tab_data[-1], tabname)
         self.tab_count += 1
         self.tabWidget.setCurrentIndex(self.tab_count)
         self.tab_textedit_data.append(QPlainTextEdit(self.tab_data[-1]))
+        #self.save_status.append(False)
 
         plain_text_edit = self.tab_textedit_data[-1]
         layout = QVBoxLayout()
         layout.addWidget(plain_text_edit)
         plain_text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        plain_text_edit.setPlainText(text)
         self.tab_data[-1].setLayout(layout)
         plain_text_edit.setFocus()
         plain_text_edit.installEventFilter(self)
+        plain_text_edit.textChanged.connect(self.handle_text_changed)
         
         # Use QTimer to set the scrollbar value after the widget is displayed
         QTimer.singleShot(0, lambda: self.set_scrollbar_value(plain_text_edit))
+    
+    def handle_text_changed(self):# mark * with unsaved files
+        if self.tabWidget.tabText(self.tabWidget.currentIndex())!='Untitled' and not self.tabWidget.tabText(self.tabWidget.currentIndex()).endswith('*'):
+            self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.tabWidget.tabText(self.tabWidget.currentIndex())+"*")
+            
 
     def set_scrollbar_value(self, plain_text_edit):
         plain_text_edit.verticalScrollBar().setSingleStep(2)
@@ -118,7 +128,7 @@ class MyGUI(QMainWindow):
     
     def close_tab(self,tab_index):
         if self.tab_count != 0:
-            if len(self.tab_textedit_data[tab_index].toPlainText())==0 and self.tabWidget.tabText(tab_index)=='Untitled':
+            if len(self.tab_textedit_data[tab_index].toPlainText())==0 and self.tabWidget.tabText(tab_index)=='Untitled' and not self.tabWidget.tabText(tab_index).endswith('*'):
                 self.tab_data.pop(tab_index)
                 self.tab_textedit_data.pop(tab_index)
                 self.tabWidget.removeTab(tab_index)
@@ -146,7 +156,7 @@ class MyGUI(QMainWindow):
                 except:
                     pass
         else:
-            if len(self.tab_textedit_data[tab_index].toPlainText())!=0 and self.tabWidget.tabText(tab_index)=='Untitled':
+            if len(self.tab_textedit_data[tab_index].toPlainText())!=0 and self.tabWidget.tabText(tab_index)=='Untitled' or self.tabWidget.tabText(tab_index).endswith('*'):
                     dialog = QMessageBox()
                     dialog.setText("Do you want to save your work?")
                     dialog.addButton(QPushButton("Yes"), QMessageBox.AcceptRole)
