@@ -1,0 +1,22 @@
+{
+    "theme": {
+        "light-theme": {
+            "window": "background-color: #FFFFFF;color: #000; border: none",
+            "text-edit-stylesheet": "QScrollBar:vertical {width: 5px;} QScrollBar:horizontal {height: 5px; } QScrollBar::handle {background: #000; border: 1px solid #666;}",
+            "tabwidget-stylesheet": "",
+            "statusbar-stylesheet": "",
+            "menubar-stylesheet": ""
+        },
+        "dark-theme": {
+            "window": "background-color: #303135; color: #FFF; border: none;",
+            "text-edit-stylesheet": "QScrollBar:vertical {width: 5px; } QScrollBar:horizontal { height: 5px;} QScrollBar::handle {background: #555; border: 1px solid #000;}",
+            "tabwidget-stylesheet": "QTabWidget::pane { background-color: #333;} QTabBar::tab { background-color: #777;color: #FFF; border: 1px solid #555; padding: 5px;} QTabBar::tab:selected {background-color: #333;}",
+            "statusbar-stylesheet": "background-color: #222; color: #FFF;",
+            "menubar-stylesheet": "QMenuBar {background-color: #222; color: #FFF;} QMenuBar::item:selected { background-color: #444;}"
+        }
+    },
+    "default-font": "Consolas",
+    "default-font-size": 10,
+    "always-show-maximized": 1,
+    "open-file-types": "Text Files (*.txt);;Assembly file (*.asm);;Batch file (*.bat);;bash file (*.sh);;C source file (*.c);;C# file (*.cs);;C++ source file (*.cpp,*c++);;CSS (*.css);;Go file (*.go);;HTML (*.html);;java source file (*.java);;javascript file (*.js);;markdown file (*.md);;Python Files (*.py,pyz,pyw);;Powershell file (.ps1);;PHP file (*.php);;R file (*.r);;Rust file (*.rs);;Typescript file (*.ts);;All files (*.*)"
+}
