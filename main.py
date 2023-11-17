@@ -6,23 +6,24 @@ import sys
 import os
 from datetime import datetime
 from PyQt5.QtCore import QTimer
+from elements.find import *
+from elements.replace import *
 import chardet
 import json
 
 class MyGUI(QMainWindow):
     def __init__(self,*args,**kwargs):
         super(MyGUI, self).__init__()
-        self.__version__ = 1.05
+        self.__version__ = 1.10
         self.tab_count = -1
         self.tab_data = []
         self.tab_textedit_data = []
         self.save_status = []
         self.file_encoding = []
-        uic.loadUi('text_editor.ui', self)
-        icon = QIcon('notepad.ico')
-        self.setWindowIcon(icon)
-        self.setWindowTitle('Text editor x')
-        self.dark_theme_enabled = False
+        uic.loadUi('./ui/text_editor.ui', self)
+        self.icon = QIcon('./ui/images/notepad.ico')
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle('teX')
         self.zoom_level = 100
 
         try:
@@ -32,6 +33,8 @@ class MyGUI(QMainWindow):
             sys.exit(0)
         except json.JSONDecodeError as e:
             sys.exit(0)
+        
+        self.dark_theme_enabled = False
         
 
         if len(args) > 1:
@@ -74,11 +77,19 @@ class MyGUI(QMainWindow):
 
         self.actionDark_Theme.triggered.connect(self.dark_theme)
 
+        self.actionReplace.triggered.connect(self.replace_text)
+
         self.actionAbout.triggered.connect(self.about)
+
+        self.actionFind.triggered.connect(self.findUI)
 
         self.statusBar().showMessage(f"Ln 1 , Col 1")
 
-        self.setStyleSheet(self.settings_data['theme']['light-theme']['window'])
+        if self.dark_theme_enabled:
+            self.dark_theme()
+        else:
+            self.setStyleSheet(self.settings_data['theme']['light-theme']['window'])
+            self.dark_theme_enabled = not self.dark_theme_enabled
 
         self.menubar.setStyleSheet("")
 
@@ -98,10 +109,6 @@ class MyGUI(QMainWindow):
 
         if self.settings_data['always-show-maximized']:
             self.showMaximized()
-
-
-        
-        self.show()
 
     def add_new_tab(self, tabname, text = '', filename = None):
         self.tab_data.append(QWidget())
@@ -147,6 +154,7 @@ class MyGUI(QMainWindow):
             plain_text_edit.setStyleSheet(self.settings_data['theme']['dark-theme']['text-edit-stylesheet'])
         else: #light theme
             plain_text_edit.setStyleSheet(self.settings_data['theme']['light-theme']['text-edit-stylesheet'])
+        
     
     def close_tab(self,tab_index):
         if self.tab_count != 0:
@@ -161,7 +169,8 @@ class MyGUI(QMainWindow):
             else:
                 if len(self.tab_textedit_data[tab_index].toPlainText())!=0 and self.tabWidget.tabText(tab_index)=='Untitled':
                     dialog = QMessageBox()
-                    dialog.setWindowIcon(QIcon('notepad.ico'))
+                    dialog.setWindowIcon(self.icon)
+                    dialog.setWindowTitle('Save')
                     dialog.setText("Do you want to save your work?")
                     dialog.addButton(QPushButton("Yes"), QMessageBox.AcceptRole)
                     dialog.addButton(QPushButton("No"), QMessageBox.RejectRole)
@@ -185,7 +194,8 @@ class MyGUI(QMainWindow):
         else:
             if len(self.tab_textedit_data[tab_index].toPlainText())!=0 and self.tabWidget.tabText(tab_index)=='Untitled' or self.tabWidget.tabText(tab_index).endswith('•'):
                     dialog = QMessageBox()
-                    dialog.setWindowIcon(QIcon('notepad.ico'))
+                    dialog.setWindowIcon(self.icon)
+                    dialog.setWindowTitle('Save')
                     dialog.setText("Do you want to save your work?")
                     dialog.addButton(QPushButton("Yes"), QMessageBox.AcceptRole)
                     dialog.addButton(QPushButton("No"), QMessageBox.RejectRole)
@@ -209,10 +219,13 @@ class MyGUI(QMainWindow):
     
     def about(self):
         msgBox = QMessageBox()
-        msgBox.setWindowIcon(QIcon('notepad.ico'))
-        pixmap = QPixmap("notepad.png")
+        msgBox.setWindowIcon(self.icon)
+        pixmap = QPixmap("./ui/images/notepad.png")
         msgBox.setIconPixmap(pixmap)
-        msgBox.setText(f"Text Editor X\nDeveloped by sourabhkv\nVersion : {self.__version__}")
+        label = QLabel()
+        label.setOpenExternalLinks(True)  # Enable opening links externally
+        label.setText(f"Text Editor X<br>Developed by <a href='https://github.com/sourabhkv'>sourabhkv</a><br>Version: {self.__version__}")
+        msgBox.layout().addWidget(label)
         msgBox.setWindowTitle("About")
         msgBox.addButton(QMessageBox.Ok)
         msgBox.exec()
@@ -310,7 +323,6 @@ class MyGUI(QMainWindow):
             self.tab_textedit_data[i].setFont(font)
     
     def dark_theme(self):
-        self.dark_theme_enabled = not self.dark_theme_enabled
         if self.dark_theme_enabled:
             self.setStyleSheet(self.settings_data['theme']['dark-theme']['window'])
             self.tabWidget.setStyleSheet(self.settings_data['theme']['dark-theme']['tabwidget-stylesheet'])
@@ -321,6 +333,7 @@ class MyGUI(QMainWindow):
             self.tabWidget.setStyleSheet(self.settings_data['theme']['light-theme']['tabwidget-stylesheet'])
             self.statusbar.setStyleSheet(self.settings_data['theme']['light-theme']['statusbar-stylesheet'])
             self.menubar.setStyleSheet(self.settings_data['theme']['light-theme']['menubar-stylesheet'])
+        self.dark_theme_enabled = not self.dark_theme_enabled
     
     def time_date(self):
         __current_time = datetime.now().strftime('%H:%M:%S')
@@ -352,6 +365,14 @@ class MyGUI(QMainWindow):
         font = QFont(self.settings_data['default-font'], self.settings_data['default-font-size'])
         for i in range(self.tab_count+1):
             self.tab_textedit_data[i].setFont(font)
+
+    def findUI(self):
+        search_dialog = SearchDialog(self, self.tab_textedit_data, self.tabWidget.currentIndex() )
+        search_dialog.exec_()
+    
+    def replace_text(self):
+        replace_dialog = ReplaceDialog(self, self.tab_textedit_data, self.tabWidget.currentIndex() )
+        replace_dialog.exec_()
     
     def create_new_window(self):
         new_instance = MyGUI()
@@ -366,6 +387,7 @@ class MyGUI(QMainWindow):
 def main():
     app = QApplication([])
     window = MyGUI(*sys.argv)
+    window.show()
     app.exec_()
 
 if __name__ == '__main__':
