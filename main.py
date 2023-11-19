@@ -14,12 +14,13 @@ import json
 class MyGUI(QMainWindow):
     def __init__(self,*args,**kwargs):
         super(MyGUI, self).__init__()
-        self.__version__ = 1.10
+        self.__version__ = 1.11
         self.tab_count = -1
         self.tab_data = []
         self.tab_textedit_data = []
         self.save_status = []
         self.file_encoding = []
+        self.word_count = 0
         uic.loadUi('./ui/text_editor.ui', self)
         self.icon = QIcon('./ui/images/notepad.ico')
         self.setWindowIcon(self.icon)
@@ -40,7 +41,11 @@ class MyGUI(QMainWindow):
         if len(args) > 1:
             for i in args[1:]:
                 with open(i,"r") as file:
-                    self.add_new_tab(tabname=str(i),text = file.read(), filename = i)
+                    try:
+                        self.add_new_tab(tabname=str(i),text = file.read(), filename = i)
+                    except UnicodeDecodeError:
+                        self.unknown_encoding()
+                        self.add_new_tab(tabname="Untitled")
                     
         else:
             self.add_new_tab(tabname="Untitled")
@@ -49,7 +54,7 @@ class MyGUI(QMainWindow):
 
         self.actionNew_tab.triggered.connect(lambda: self.add_new_tab("Untitled"))
 
-        self.actionClose_tab.triggered.connect(self.close_tab)
+        self.actionClose_tab.triggered.connect(lambda: self.close_tab(self.tabWidget.currentIndex()))
 
         self.actionOpen.triggered.connect(self.open_file)
 
@@ -81,6 +86,8 @@ class MyGUI(QMainWindow):
 
         self.actionAbout.triggered.connect(self.about)
 
+        self.tabWidget.setTabBarAutoHide(bool(self.settings_data['auto-hide-tabs']))
+
         self.actionFind.triggered.connect(self.findUI)
 
         self.statusBar().showMessage(f"Ln 1 , Col 1")
@@ -95,16 +102,21 @@ class MyGUI(QMainWindow):
 
         self.permanent_label = QLabel(f"   {self.zoom_level} %  ")
         self.statusbar.addPermanentWidget(self.permanent_label)
-        self.separator = QFrame()
-        self.separator.setFrameShape(QFrame.VLine)
-        self.separator.setFrameShadow(QFrame.Sunken)
+
+        if self.settings_data['show-word-count']:
+            self.separator = QFrame()
+            self.separator.setFrameShape(QFrame.VLine)
+            self.separator.setFrameShadow(QFrame.Sunken)
+
+            self.word_count_label = QLabel(f"   {self.word_count} words   ")
+            self.statusbar.addPermanentWidget(self.word_count_label)
 
         self.separator = QFrame()
         self.separator.setFrameShape(QFrame.VLine)
         self.separator.setFrameShadow(QFrame.Sunken)
         
 
-        self.permanent_label2 = QLabel("   ASCII   ")
+        self.permanent_label2 = QLabel("   UTF-8   ")
         self.statusbar.addPermanentWidget(self.permanent_label2)
 
         if self.settings_data['always-show-maximized']:
@@ -112,18 +124,25 @@ class MyGUI(QMainWindow):
 
     def add_new_tab(self, tabname, text = '', filename = None):
         self.tab_data.append(QWidget())
+        self.tab_textedit_data.append(QPlainTextEdit(self.tab_data[-1]))
         self.tabWidget.addTab(self.tab_data[-1], tabname)
         self.tab_count += 1
         self.tabWidget.setCurrentIndex(self.tab_count)
-        self.tab_textedit_data.append(QPlainTextEdit(self.tab_data[-1]))
+        
 
         if text == '' and filename is None:
             self.save_status.append(False)
-            self.file_encoding.append('   ASCII   ')
+            self.file_encoding.append('   UTF-8   ')
         elif text!='' and filename is not None:
-            self.save_status.append(True)
-            with open(filename,'rb') as __file:
-                self.detect_encoding(__file.read())
+            try:
+                self.save_status.append(True)
+                with open(filename,'rb') as __file:
+                    self.detect_encoding(__file.read())
+                
+                self.word_count = len(text.split())
+            except UnicodeDecodeError:
+                self.unknown_encoding()
+            #self.word_count_label.setText(f"   {self.word_count} words   ")
 
         plain_text_edit = self.tab_textedit_data[-1]
         layout = QVBoxLayout()
@@ -144,6 +163,10 @@ class MyGUI(QMainWindow):
         if self.tabWidget.tabText(self.tabWidget.currentIndex())!='Untitled' and not self.tabWidget.tabText(self.tabWidget.currentIndex()).endswith('•'):
             self.save_status[self.tabWidget.currentIndex()] = False
             self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.tabWidget.tabText(self.tabWidget.currentIndex())+"•")
+            self.word_count = len(self.tab_textedit_data[self.tabWidget.currentIndex()].toPlainText().split())
+
+        self.word_count = len(self.tab_textedit_data[self.tabWidget.currentIndex()].toPlainText().split())
+        self.word_count_label.setText(f"   {self.word_count} words   ")
             
 
     def set_scrollbar_value(self, plain_text_edit):
@@ -204,7 +227,7 @@ class MyGUI(QMainWindow):
                     if answer == 0:
                         self.save_file()
                     else:
-                        pass
+                        dialog.close()
             sys.exit(0)
     
     def detect_encoding(self,rawdata):
@@ -215,7 +238,7 @@ class MyGUI(QMainWindow):
             if encoding:
                 self.file_encoding.append(f'   {encoding.upper()}   ')
         except:
-            self.file_encoding.append('   ASCII   ')
+            self.file_encoding.append('   UTF-8   ')
     
     def about(self):
         msgBox = QMessageBox()
@@ -229,25 +252,39 @@ class MyGUI(QMainWindow):
         msgBox.setWindowTitle("About")
         msgBox.addButton(QMessageBox.Ok)
         msgBox.exec()
+    
+    def unknown_encoding(self):
+        dialog = QMessageBox()
+        dialog.setWindowIcon(self.icon)
+        dialog.setWindowTitle('Can\'t open file')
+        dialog.setText("This file is not displayed in the text editor")
+        dialog.addButton(QPushButton("OK"), QMessageBox.AcceptRole)
+        answer = dialog.exec_()
+        if answer == 0:
+            dialog.close()
 
 
     def open_file(self):
         _text = self.tab_textedit_data[self.tabWidget.currentIndex()].toPlainText()
+        options_ = QFileDialog.Options()
+        filename, _ = QFileDialog.getOpenFileName(self, "Open file", "", self.settings_data['open-file-types'], options=options_)
         if _text=="":
-            options_ = QFileDialog.Options()
-            filename, _ = QFileDialog.getOpenFileName(self, "Open file", "", self.settings_data['open-file-types'], options=options_)
             if filename != "":
                 with open(filename, "r") as file:
                     self.tab_textedit_data[self.tabWidget.currentIndex()].setPlainText(file.read())
                 self.tabWidget.setTabText(self.tabWidget.currentIndex(), filename)
         
         else:
-            options_ = QFileDialog.Options()
-            filename, _ = QFileDialog.getOpenFileName(self, "Open file", "", self.settings_data['open-file-types'], options=options_)
             if filename != "":
                 self.add_new_tab(filename)
-                with open(filename, "r") as file:
-                    self.tab_textedit_data[self.tabWidget.currentIndex()].setPlainText(file.read())
+                try:
+                    with open(filename, "r") as file:
+                        self.tab_textedit_data[self.tabWidget.currentIndex()].setPlainText(file.read())
+                    self.word_count = len(self.tab_textedit_data[self.tabWidget.currentIndex()].toPlainText().split())
+                    self.word_count_label.setText(f'   {self.word_count} words   ')
+                except UnicodeDecodeError:
+                    self.unknown_encoding()
+
     
     def save_file(self):
         __text = self.tab_textedit_data[self.tabWidget.currentIndex()].toPlainText()
@@ -302,8 +339,15 @@ class MyGUI(QMainWindow):
         self.statusBar().showMessage(f"Ln {line} , Col {column}")
     
     def update_cursor(self):
-        if self.tab_count>0:
-            self.update_cursor_position
+        timer = QTimer(self)
+        
+        try:
+            if self.tab_count>0:
+                timer.timeout.connect(self.update_cursor_position)
+                #self.update_cursor_position
+                timer.start(100)
+        except IndexError:
+            pass
     
     def zoom_out(self):
         if self.zoom_level>=85:

@@ -17,6 +17,8 @@
     },
     "default-font": "Consolas",
     "default-font-size": 10,
+    "show-word-count": 1,
     "always-show-maximized": 0,
+    "auto-hide-tabs":1,
     "open-file-types": "Text Files (*.txt);;Assembly file (*.asm);;Batch file (*.bat);;bash file (*.sh);;C source file (*.c);;C# file (*.cs);;C++ source file (*.cpp,*c++);;CSS (*.css);;Go file (*.go);;HTML (*.html);;java source file (*.java);;javascript file (*.js);;markdown file (*.md);;Python Files (*.py,pyz,pyw);;Powershell file (.ps1);;PHP file (*.php);;R file (*.r);;Rust file (*.rs);;Typescript file (*.ts);;All files (*.*)"
 }
