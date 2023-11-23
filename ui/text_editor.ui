@@ -47,7 +47,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNew_tab"/>
     <addaction name="actionNew_Window"/>
@@ -61,7 +61,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
@@ -73,13 +73,13 @@
     <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionReplace"/>
+    <addaction name="actiongo_to"/>
     <addaction name="separator"/>
     <addaction name="actiontime_date"/>
-    <addaction name="actionautosave"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <widget class="QMenu" name="menuZoom_in">
      <property name="title">
@@ -95,7 +95,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
@@ -345,6 +345,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actiongo_to">
+   <property name="text">
+    <string>Go to</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>

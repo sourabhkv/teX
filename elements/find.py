@@ -5,10 +5,9 @@ from PyQt5.QtGui import QTextCursor, QIcon
 
 
 class SearchDialog(QDialog):
-    def __init__(self, parent, tab_textedit_data, current_tab_index):
+    def __init__(self, parent, tabdata):
         super().__init__(parent)
-        self.tab_textedit_data = tab_textedit_data
-        self.current_tab_index = current_tab_index
+        self.text_edit = tabdata.text_edit
         self.counter = 0
         self.move(0, 0)
 
@@ -45,10 +44,10 @@ class SearchDialog(QDialog):
     def find_text(self):
         if self.checkBox.isChecked():
             __text = self.lineEdit.text()
-            __main_text = self.tab_textedit_data[self.current_tab_index].toPlainText()
+            __main_text = self.text_edit.toPlainText()
         else:
             __text = self.lineEdit.text().lower()
-            __main_text = self.tab_textedit_data[self.current_tab_index].toPlainText().lower()
+            __main_text = self.text_edit.toPlainText().lower()
         if __text == '':
             self.status_label.setText('Enter word')
         else:
@@ -59,6 +58,7 @@ class SearchDialog(QDialog):
                 self.pushButton.setEnabled(True)
             else:
                 error_box = QMessageBox()
+                error_box.setWindowIcon(QIcon('./ui/images/notepad.ico'))
                 error_box.setIcon(QMessageBox.Critical)
                 error_box.setWindowTitle("teX")
                 error_box.setText("No match found")
@@ -70,31 +70,29 @@ class SearchDialog(QDialog):
         self.counter = self.counter % len(self.indexes)
         __start = self.indexes[self.counter]
 
-        cursor = self.tab_textedit_data[self.current_tab_index].textCursor()
+        cursor = self.text_edit.textCursor()
         cursor.setPosition(__start, QTextCursor.MoveAnchor)  # Move the cursor to start
 
         # Select the word
         if self.checkBox_2.isChecked():
             cursor.setPosition(__start + __length, QTextCursor.KeepAnchor)  # Move the cursor to end while keeping the anchor
-            self.tab_textedit_data[self.current_tab_index].setTextCursor(cursor)
+            self.text_edit.setTextCursor(cursor)
         
         self.status_label.setText(f'{self.counter+1} of {len(self.indexes)}')
 
-        self.tab_textedit_data[self.current_tab_index].setFocus()
+        self.text_edit.setFocus()
 
         if self.radioButton_2.isChecked():
             self.counter += 1
         else:
             self.counter -= 1
-
-
     
     def find_substring_indexes(self):
         if self.checkBox.isChecked():
-            input_string = self.tab_textedit_data[self.current_tab_index].toPlainText()
+            input_string = self.text_edit.toPlainText()
             substring = self.lineEdit.text()
         else:
-            input_string = self.tab_textedit_data[self.current_tab_index].toPlainText().lower()
+            input_string = self.text_edit.toPlainText().lower()
             substring = self.lineEdit.text().lower()
         self.indexes = []
         start_index = 0

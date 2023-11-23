@@ -1,24 +1,25 @@
 {
-    "theme": {
-        "light-theme": {
-            "window": "background-color: #FFFFFF;color: #000; border: none;",
-            "text-edit-stylesheet": "QScrollBar:vertical {width: 5px;} QScrollBar:horizontal {height: 5px; } QScrollBar::handle {background: #000; border: 1px solid #666;}",
-            "tabwidget-stylesheet": "",
-            "statusbar-stylesheet": "",
-            "menubar-stylesheet": "QMenuBar::item:hover {background-color: #888;}"
+    "THEME": {
+        "LIGHT_THEME": {
+            "WINDOW": "background-color: #FFFFFF;color: #000; border: none;",
+            "TEXT_EDIT_STYLESHEET": "QScrollBar:vertical {width: 5px;} QScrollBar:horizontal {height: 5px; } QScrollBar::handle {background: #000; border: 1px solid #666;}",
+            "TABWIDGET_STYLESHEET": "",
+            "STATUSBAR_STYLESHEET": "",
+            "MENUBAR_STYLESHEET": "QMenuBar::item:hover {background-color: #888;}"
         },
-        "dark-theme": {
-            "window": "background-color: #303135; color: #FFF; border: none;",
-            "text-edit-stylesheet": "QScrollBar:vertical {width: 5px; } QScrollBar:horizontal { height: 5px;} QScrollBar::handle {background: #555; border: 1px solid #000;}",
-            "tabwidget-stylesheet": "QTabWidget::pane { background-color: #333;} QTabBar::tab { background-color: #777;color: #FFF; border: 1px solid #555; padding: 5px;} QTabBar::tab:selected {background-color: #333;}",
-            "statusbar-stylesheet": "background-color: #222; color: #FFF;",
-            "menubar-stylesheet": "QMenuBar {background-color: #222; color: #FFF;} QMenuBar::item:selected { background-color: #444;} QMenuBar::item:hover {background-color: #888;}"
+        "DARK_THEME": {
+            "WINDOW": "background-color: #303135; color: #FFF; border: none;",
+            "TEXT_EDIT_STYLESHEET": "QScrollBar:vertical {width: 5px; } QScrollBar:horizontal { height: 5px;} QScrollBar::handle {background: #000; border: 1px solid #555;}",
+            "TABWIDGET_STYLESHEET": "QTabWidget::pane { background-color: #333;} QTabBar::tab { background-color: #777;color: #FFF; border: 1px solid #555; padding: 5px;} QTabBar::tab:selected {background-color: #333;}",
+            "STATUSBAR_STYLESHEET": "background-color: #222; color: #FFF;",
+            "MENUBAR_STYLESHEET": "QMenuBar {background-color: #222; color: #FFF;} QMenuBar::item:selected { background-color: #444;} QMenuBar::item:hover {background-color: #888;}"
         }
     },
-    "default-font": "Consolas",
-    "default-font-size": 10,
-    "show-word-count": 1,
-    "always-show-maximized": 0,
-    "auto-hide-tabs":1,
-    "open-file-types": "Text Files (*.txt);;Assembly file (*.asm);;Batch file (*.bat);;bash file (*.sh);;C source file (*.c);;C# file (*.cs);;C++ source file (*.cpp,*c++);;CSS (*.css);;Go file (*.go);;HTML (*.html);;java source file (*.java);;javascript file (*.js);;markdown file (*.md);;Python Files (*.py,pyz,pyw);;Powershell file (.ps1);;PHP file (*.php);;R file (*.r);;Rust file (*.rs);;Typescript file (*.ts);;All files (*.*)"
+    "DEFAULT_FONT": "Consolas",
+    "DEFAULT_FONT_SIZE": 10,
+    "SHOW_WORD_COUNT": 1,
+    "ALWAYS_SHOW_MAXIMIZED": false,
+    "AUTO_HIDE_TABS": 0,
+    "DEFAULT_DARK_THEME": true,
+    "FILE_TYPES": "Text Files (*.txt);;Assembly file (*.asm);;Batch file (*.bat);;bash file (*.sh);;C source file (*.c);;C# file (*.cs);;C++ source file (*.cpp,*c++);;CSS (*.css);;Go file (*.go);;HTML (*.html);;java source file (*.java);;javascript file (*.js);;markdown file (*.md);;Python Files (*.py,pyz,pyw);;Powershell file (.ps1);;PHP file (*.php);;R file (*.r);;Rust file (*.rs);;Typescript file (*.ts);;All files (*.*)"
 }
